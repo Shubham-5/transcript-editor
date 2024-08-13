@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import TranscriptWord from "./TranscriptWord";
 
 function TranscriptEditor({ initialTranscript }) {
   const [transcript, setTranscript] = useState(initialTranscript);
@@ -8,16 +9,6 @@ function TranscriptEditor({ initialTranscript }) {
   const [currentWordIndex, setCurrentWordIndex] = useState(null);
 
   const timersRef = useRef([]);
-
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [editingText, setEditingText] = useState("");
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [editingIndex]);
 
   useEffect(() => {
     return () => {
@@ -56,32 +47,6 @@ function TranscriptEditor({ initialTranscript }) {
     }
   };
 
-  const handleWordClick = (index) => {
-    setEditingIndex(index);
-    setEditingText(transcript[index].word);
-  };
-
-  const handleInputChange = (e) => {
-    setEditingText(e.target.value);
-  };
-
-  const handleInputSubmit = () => {
-    const updatedTranscript = [...transcript];
-    updatedTranscript[editingIndex].word = editingText;
-    setTranscript(updatedTranscript);
-    setEditingIndex(null);
-  };
-
-  const handleInputBlur = () => {
-    handleInputSubmit();
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleInputSubmit();
-    }
-  };
-
   return (
     <div className="p-6">
       <button
@@ -95,30 +60,14 @@ function TranscriptEditor({ initialTranscript }) {
 
       <div className="border p-4 rounded">
         {transcript.map((wordObj, index) => (
-          <span key={index} className="inline-block text-sm font-medium">
-            {editingIndex === index ? (
-              <input
-                ref={inputRef}
-                type="text"
-                value={editingText}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
-                onKeyDown={handleKeyDown}
-                className="border border-blue-500 focus:outline-none"
-              />
-            ) : (
-              <span
-                onClick={() => handleWordClick(index)}
-                className={`cursor-pointer rounded-lg px-0.5 py-0.5 transition-all ${
-                  currentWordIndex === index
-                    ? "border border-yellow-500 bg-yellow-500"
-                    : "border border-transparent"
-                }`}
-              >
-                {wordObj.word}
-              </span>
-            )}
-          </span>
+          <TranscriptWord
+            key={`${wordObj + index}`}
+            transcript={transcript}
+            setTranscript={setTranscript}
+            currentWordIndex={currentWordIndex}
+            wordObj={wordObj}
+            index={index}
+          />
         ))}
       </div>
     </div>
